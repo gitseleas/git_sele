@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        test-file: ['git_sele1.py', 'git_sele2.py', 'git_sele3.py', 'git_sele4.py', 'git_sele5.py']
+        test-file: ['git_sele1.py', 'git_sele2.py', 'git_sele3.py', 'git_sele4.py', 'git_sele5.py', 'git_sele6.py']
         include:
           - test-file: 'git_sele1.py'
             results-file: 'results1.json'
@@ -20,6 +20,8 @@ jobs:
             results-file: 'results4.json'
           - test-file: 'git_sele5.py'
             results-file: 'results5.json'
+          - test-file: 'git_sele6.py'
+            results-file: 'results6.json'
       fail-fast: false  # Continue with other jobs even if one fails
     
     steps:
