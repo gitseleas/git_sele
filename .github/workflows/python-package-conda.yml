@@ -1,34 +1,54 @@
-name: Python Package using Conda
+name: Maksing Sdfds Code
 
-on: [push]
+on:
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  scan-codes:
+    runs-on: windows-latest
     strategy:
-      max-parallel: 5
-
+      matrix:
+        test-file: ['git_sele1.py', 'git_sele2.py', 'git_sele3.py', 'git_sele4.py', 'git_sele5.py']
+        include:
+          - test-file: 'git_sele1.py'
+            results-file: 'results1.json'
+          - test-file: 'git_sele2.py'
+            results-file: 'results2.json'
+          - test-file: 'git_sele3.py'
+            results-file: 'results3.json'
+          - test-file: 'git_sele4.py'
+            results-file: 'results4.json'
+          - test-file: 'git_sele5.py'
+            results-file: 'results5.json'
+      fail-fast: false  # Continue with other jobs even if one fails
+    
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+    - uses: browser-actions/setup-chrome@v1
+      with: 
+        chrome-version: 133
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
-    - name: Add conda to system path
+        python-version: '3.9'
+    
+    
+    - name: Install Python dependencies
       run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda env update --file environment.yml --name base
-    - name: Lint with flake8
-      run: |
-        conda install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        conda install pytest
-        pytest
+        python -m pip install --upgrade pip
+        pip install -U selenium
+        pip install webdriver-manager
+        
+    - name: Run scanner - ${{ matrix.test-file }}
+      run: python ${{ matrix.test-file }}
+        
+    - name: Upload Results - ${{ matrix.test-file }}
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: scan-results-${{ matrix.test-file }}-${{ github.run_number }}
+        path: |
+          ${{ matrix.results-file }}
+          promotion_results.txt
+        retention-days: 90
